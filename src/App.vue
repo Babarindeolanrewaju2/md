@@ -28,16 +28,30 @@
             :secondFlag="secondFlag"
             :exchangeName="exchangeName"
           />
-          <div class="d-flex flex-row">
-            {{ symbolName }}
-            {{ price }}
+          <div class="d-flex flex-row justify-content-between mb-2">
+            <p>{{ symbolName }}</p>
+            <div class="text-end">
+              <p>{{ price }}</p>
+              <div
+                v-bind:class="[
+                  change < 0 ? 'change-red' : 'change-green',
+                  'percentage',
+                ]"
+              >
+                <span>{{ change }}</span>
+                <span class="percentage">{{ changePercent }}</span>
+              </div>
+            </div>
           </div>
           <apexchart
             height="350"
             :options="chartOptions"
             :series="series"
           ></apexchart>
-          <TimeFrame @setTimeFrame="setTimeFrame" />
+          <TimeFrame
+            @setTimeFrame="setTimeFrame"
+            :timeSelection="timeSelection"
+          />
         </div>
       </div>
     </div>
@@ -68,12 +82,13 @@ export default {
       price: "",
       timeSelection: "D",
       connection: null,
+      change: "",
+      changePercent: "",
       chartOptions: {
         chart: {
           type: "candlestick",
         },
         title: {
-          // text: "Forex Chart",
           align: "left",
         },
         xaxis: {
@@ -88,7 +103,6 @@ export default {
     };
   },
   components: {
-    // eslint-disable-next-line vue/no-unused-components
     Exchanges,
     Symbols,
     TimeFrame,
@@ -112,13 +126,59 @@ export default {
     setTimeFrame(timeFrame) {
       this.timeSelection = timeFrame;
     },
+    transformArray(response) {
+      let chart = response.data.c.map((item, index) => {
+        var a = new Date(response.data.t[index] * 1000);
+        var months = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var time = `${date}/${month}/${year}`;
+        return {
+          x: time,
+          y: [
+            Number(response.data.o[index].toFixed(2)),
+            Number(response.data.h[index].toFixed(2)),
+            Number(response.data.l[index].toFixed(2)),
+            Number(item.toFixed(2)),
+            Number(response.data.v[index].toFixed(2)),
+          ],
+        };
+      });
+      const lastItem = chart[chart.length - 1];
+      this.price = lastItem.y[3].toFixed(2);
+      let change = lastItem.y[3] - lastItem.y[0];
+      change = change.toFixed(2);
+      change = change < 0 ? change : `+${change}`;
+      this.change = change;
+      let changePercent = (
+        ((lastItem.y[3] - lastItem.y[0]) / lastItem.y[0]) *
+        100
+      ).toFixed(2);
+      changePercent = changePercent < 0 ? changePercent : `+${changePercent}`;
+      this.changePercent = `(${changePercent}%)`;
+      this.series = [{ data: chart }];
+    },
   },
   watch: {
-    // whenever question changes, this function will run
     async exchangeName(val) {
       this.symbolName = "";
       this.firstFlag = "";
       this.secondFlag = "";
+      this.series = [];
       try {
         let response = await axios.get(
           `https://finnhub.io/api/v1/forex/symbol?exchange=${val}&token=sandbox_c8urg4aad3iaocnjlu50`
@@ -129,63 +189,135 @@ export default {
       }
     },
     async symbolName(val) {
-      console.log(val);
-      try {
-        let response = await axios.get(
-          `https://finnhub.io/api/v1/forex/candle?symbol=${val.symbol}&resolution=${this.timeSelection}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
-        );
-        let chart = response.data.c.map((item, index) => {
-          return {
-            x: new Date(response.data.t[index]),
-            y: [
-              Number(response.data.o[index]),
-              Number(response.data.h[index]),
-              Number(response.data.l[index]),
-              Number(item),
-              Number(response.data.v[index]),
-            ],
-          };
-        });
-        this.series = [{ data: chart }];
-      } catch (error) {
-        // console.log(Object.keys(error), error.message);
+      if (val) {
+        try {
+          let response = await axios.get(
+            `https://finnhub.io/api/v1/forex/candle?symbol=${val.symbol}&resolution=${this.timeSelection}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
+          );
+
+          this.transformArray(response);
+
+          // let chart = response.data.c.map((item, index) => {
+          //   var a = new Date(response.data.t[index] * 1000);
+          //   var months = [
+          //     "Jan",
+          //     "Feb",
+          //     "Mar",
+          //     "Apr",
+          //     "May",
+          //     "Jun",
+          //     "Jul",
+          //     "Aug",
+          //     "Sep",
+          //     "Oct",
+          //     "Nov",
+          //     "Dec",
+          //   ];
+          //   var year = a.getFullYear();
+          //   var month = months[a.getMonth()];
+          //   var date = a.getDate();
+          //   var time = `${date}/${month}/${year}`;
+          //   return {
+          //     x: time,
+          //     y: [
+          //       Number(response.data.o[index].toFixed(2)),
+          //       Number(response.data.h[index].toFixed(2)),
+          //       Number(response.data.l[index].toFixed(2)),
+          //       Number(item.toFixed(2)),
+          //       Number(response.data.v[index].toFixed(2)),
+          //     ],
+          //   };
+          // });
+          // const lastItem = chart[chart.length - 1];
+          // this.price = lastItem.y[3].toFixed(2);
+          // let change = lastItem.y[3] - lastItem.y[0];
+          // change = change.toFixed(2);
+          // change = change < 0 ? change : `+${change}`;
+          // this.change = change;
+          // let changePercent = (
+          //   ((lastItem.y[3] - lastItem.y[0]) / lastItem.y[0]) *
+          //   100
+          // ).toFixed(2);
+          // changePercent =
+          //   changePercent < 0 ? changePercent : `+${changePercent}`;
+          // this.changePercent = `(${changePercent})`;
+          // this.series = [{ data: chart }];
+        } catch (error) {
+          // console.log(Object.keys(error), error.message);
+        }
+
+        // console.log(this.connection);
+
+        // this.connection.send(
+        //   JSON.stringify({
+        //     type: "subscribe",
+        //     symbol: `${this.exchangeName}:${this.symbolName.displaySymbol}`,
+        //   })
+        // );
+
+        // this.connection.onmessage = function (event) {
+        //   // this.price = event.data.price;
+        //   console.log(event);
+        // };
       }
-
-      console.log(this.connection);
-
-      // this.connection.send(
-      //   JSON.stringify({
-      //     type: "subscribe",
-      //     symbol: `${this.exchangeName}:${this.symbolName.displaySymbol}`,
-      //   })
-      // );
-
-      // this.connection.onmessage = function (event) {
-      //   // this.price = event.data.price;
-      //   console.log(event);
-      // };
     },
     async timeSelection(val) {
-      console.log(val);
-      try {
-        let response = await axios.get(
-          `https://finnhub.io/api/v1/forex/candle?symbol=${this.symbolName.symbol}&resolution=${val}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
-        );
-        let chart = response.data.c.map((item, index) => {
-          return {
-            x: new Date(response.data.t[index]),
-            y: [
-              Number(response.data.o[index]),
-              Number(response.data.h[index]),
-              Number(response.data.l[index]),
-              Number(item),
-              Number(response.data.v[index]),
-            ],
-          };
-        });
-        this.series = [{ data: chart }];
-      } catch (error) {
-        console.log(Object.keys(error), error.message);
+      // const formatAsPercentage = (x) => `${Math.round(x * 100)}%`;
+
+      if (this.exchangeName && this.symbolName) {
+        try {
+          let response = await axios.get(
+            `https://finnhub.io/api/v1/forex/candle?symbol=${this.symbolName.symbol}&resolution=${val}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
+          );
+
+          let chart = response.data.c.map((item, index) => {
+            var a = new Date(response.data.t[index] * 1000);
+            var months = [
+              "Jan",
+              "Feb",
+              "Mar",
+              "Apr",
+              "May",
+              "Jun",
+              "Jul",
+              "Aug",
+              "Sep",
+              "Oct",
+              "Nov",
+              "Dec",
+            ];
+            var year = a.getFullYear();
+            var month = months[a.getMonth()];
+            var date = a.getDate();
+            var time = `${date}/${month}/${year}`;
+            return {
+              x: time,
+              y: [
+                Number(response.data.o[index].toFixed(2)),
+                Number(response.data.h[index].toFixed(2)),
+                Number(response.data.l[index].toFixed(2)),
+                Number(item.toFixed(2)),
+                Number(response.data.v[index].toFixed(2)),
+              ],
+            };
+          });
+          const lastItem = chart[chart.length - 1];
+          this.price = lastItem.y[3].toFixed(2);
+          let change = lastItem.y[3] - lastItem.y[0];
+          change = change.toFixed(2);
+          change = change < 0 ? change : `+${change}`;
+          this.change = change;
+          let changePercent = (
+            ((lastItem.y[3] - lastItem.y[0]) / lastItem.y[0]) *
+            100
+          ).toFixed(2);
+          changePercent =
+            changePercent < 0 ? changePercent : `+${changePercent}`;
+          this.changePercent = `(${changePercent})`;
+          this.series = [{ data: chart }];
+        } catch (error) {
+          console.log(Object.keys(error), error.message);
+        }
       }
     },
   },
@@ -230,9 +362,20 @@ export default {
 body {
   font-family: "Gotham-Book";
 }
-</style>
 
-// https://dev.to/frostqui/how-to-use-axios-with-vue-tips-and-tricks-21e0
-//https://www.digitalocean.com/community/tutorials/vuejs-rest-api-axios
-//https://v2.vuejs.org/v2/cookbook/using-axios-to-consume-apis.html?redirect=true
-//https://lukashermann.dev/writing/how-to-use-async-await-with-vuejs-components/
+p {
+  margin-bottom: 0 !important;
+}
+
+.change-red {
+  color: red;
+}
+
+.change-green {
+  color: green;
+}
+
+.percentage {
+  font-size: 10px;
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <select @change="setExchange($event)" v-model="exchangeOption">
-      <option value="" disabled>Select a exchange</option>
+      <option value="" disabled>Select exchange</option>
       <option
         v-for="(exchange, index) in exchanges"
         :key="index"
@@ -35,7 +35,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 select {
-  width: 170px;
+  width: 200px;
   padding: 5px;
   box-sizing: border-box;
 }

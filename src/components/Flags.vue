@@ -7,7 +7,7 @@
     <div class="currency-item ex1">
       <div :class="secondFlag"></div>
     </div>
-    <p>{{ exchangeName }}</p>
+    <p class="exchange-name-theme">{{ exchangeName }}</p>
   </div>
 </template>
 
@@ -37,5 +37,11 @@ export default {
 <style scoped>
 .ex1 {
   margin-right: 10px;
+}
+.exchange-name-theme {
+  background-color: gainsboro;
+  padding: 3px;
+  border-radius: 5px;
+  font-size: 12px;
 }
 </style>
