@@ -28,21 +28,13 @@
             :secondFlag="secondFlag"
             :exchangeName="exchangeName"
           />
-          <div class="d-flex flex-row justify-content-between mb-2">
-            <p>{{ symbolName }}</p>
-            <div class="text-end">
-              <p>{{ currencySymbol }}{{ price }}</p>
-              <div
-                v-bind:class="[
-                  change < 0 ? 'change-red' : 'change-green',
-                  'percentage',
-                ]"
-              >
-                <span>{{ change }}</span>
-                <span class="percentage">{{ changePercent }}</span>
-              </div>
-            </div>
-          </div>
+          <Price
+            :symbolName="symbolName"
+            :currencySymbol="currencySymbol"
+            :price="price"
+            :changePercent="changePercent"
+            :change="change"
+          />
           <apexchart
             height="350"
             :options="chartOptions"
@@ -67,6 +59,7 @@ import Exchanges from "./components/ExchangesOptions.vue";
 import Symbols from "./components/SymbolsOptions.vue";
 import TimeFrame from "./components/TimeFrame.vue";
 import Flags from "./components/Flags.vue";
+import Price from "./components/Price.vue";
 
 export default {
   name: "App",
@@ -109,6 +102,7 @@ export default {
     Symbols,
     TimeFrame,
     Flags,
+    Price,
     apexchart: VueApexCharts,
   },
   methods: {
@@ -182,6 +176,10 @@ export default {
       this.symbolName = "";
       this.firstFlag = "";
       this.secondFlag = "";
+      this.price = "";
+      this.currencySymbol = "";
+      this.change = "";
+      this.changePercent = "";
       this.series = [];
       try {
         let response = await axios.get(
@@ -214,7 +212,7 @@ export default {
 
           this.transformArray(response);
         } catch (error) {
-          console.log(Object.keys(error), error.message);
+          // console.log(Object.keys(error), error.message);
         }
       }
     },
@@ -254,17 +252,5 @@ body {
 
 p {
   margin-bottom: 0 !important;
-}
-
-.change-red {
-  color: red;
-}
-
-.change-green {
-  color: green;
-}
-
-.percentage {
-  font-size: 10px;
 }
 </style>
