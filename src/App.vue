@@ -183,7 +183,7 @@ export default {
       this.series = [];
       try {
         let response = await axios.get(
-          `https://finnhub.io/api/v1/forex/symbol?exchange=${val}&token=sandbox_c8urg4aad3iaocnjlu50`
+          `${process.env.VUE_APP_ENV_API}/forex/symbol?exchange=${val}&token=${process.env.VUE_APP_ENV_TOKEN}`
         );
         this.symbols = response.data;
       } catch (error) {
@@ -194,7 +194,7 @@ export default {
       if (val) {
         try {
           let response = await axios.get(
-            `https://finnhub.io/api/v1/forex/candle?symbol=${val.symbol}&resolution=${this.timeSelection}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
+            `${process.env.VUE_APP_ENV_API}/forex/candle?symbol=${val.symbol}&resolution=${this.timeSelection}&from=1590988249&to=1591852249&token=${process.env.VUE_APP_ENV_TOKEN}`
           );
 
           this.transformArray(response);
@@ -207,7 +207,7 @@ export default {
       if (this.exchangeName && this.symbolName) {
         try {
           let response = await axios.get(
-            `https://finnhub.io/api/v1/forex/candle?symbol=${this.symbolName.symbol}&resolution=${val}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
+            `${process.env.VUE_APP_ENV_API}/forex/candle?symbol=${this.symbolName.symbol}&resolution=${val}&from=1590988249&to=1591852249&token=${process.env.VUE_APP_ENV_TOKEN}`
           );
 
           this.transformArray(response);
@@ -220,7 +220,7 @@ export default {
   async created() {
     try {
       let response = await axios.get(
-        "https://finnhub.io/api/v1//forex/exchange?token=sandbox_c8urg4aad3iaocnjlu50"
+        `${process.env.VUE_APP_ENV_API}//forex/exchange?token=${process.env.VUE_APP_ENV_TOKEN}`
       );
       this.exchanges = response.data;
     } catch (error) {
