@@ -31,7 +31,7 @@
           <div class="d-flex flex-row justify-content-between mb-2">
             <p>{{ symbolName }}</p>
             <div class="text-end">
-              <p>{{ price }}</p>
+              <p>{{ currencySymbol }}{{ price }}</p>
               <div
                 v-bind:class="[
                   change < 0 ? 'change-red' : 'change-green',
@@ -61,6 +61,7 @@
 <script>
 import VueApexCharts from "vue3-apexcharts";
 import axios from "axios";
+import getSymbolFromCurrency from "currency-symbol-map";
 import "currency-flags/dist/currency-flags.css";
 import Exchanges from "./components/ExchangesOptions.vue";
 import Symbols from "./components/SymbolsOptions.vue";
@@ -79,6 +80,7 @@ export default {
       series: [],
       firstFlag: "",
       secondFlag: "",
+      currencySymbol: "",
       price: "",
       timeSelection: "D",
       connection: null,
@@ -116,6 +118,8 @@ export default {
     onChangeSymbol(event) {
       this.symbolName = event;
       let flagsArray = this.symbolName.split("/");
+      let symbol = getSymbolFromCurrency(flagsArray[0]);
+      this.currencySymbol = symbol;
       this.firstFlag = `currency-flag currency-flag-${flagsArray[0]
         .toString()
         .toLowerCase()}`;
@@ -196,125 +200,19 @@ export default {
           );
 
           this.transformArray(response);
-
-          // let chart = response.data.c.map((item, index) => {
-          //   var a = new Date(response.data.t[index] * 1000);
-          //   var months = [
-          //     "Jan",
-          //     "Feb",
-          //     "Mar",
-          //     "Apr",
-          //     "May",
-          //     "Jun",
-          //     "Jul",
-          //     "Aug",
-          //     "Sep",
-          //     "Oct",
-          //     "Nov",
-          //     "Dec",
-          //   ];
-          //   var year = a.getFullYear();
-          //   var month = months[a.getMonth()];
-          //   var date = a.getDate();
-          //   var time = `${date}/${month}/${year}`;
-          //   return {
-          //     x: time,
-          //     y: [
-          //       Number(response.data.o[index].toFixed(2)),
-          //       Number(response.data.h[index].toFixed(2)),
-          //       Number(response.data.l[index].toFixed(2)),
-          //       Number(item.toFixed(2)),
-          //       Number(response.data.v[index].toFixed(2)),
-          //     ],
-          //   };
-          // });
-          // const lastItem = chart[chart.length - 1];
-          // this.price = lastItem.y[3].toFixed(2);
-          // let change = lastItem.y[3] - lastItem.y[0];
-          // change = change.toFixed(2);
-          // change = change < 0 ? change : `+${change}`;
-          // this.change = change;
-          // let changePercent = (
-          //   ((lastItem.y[3] - lastItem.y[0]) / lastItem.y[0]) *
-          //   100
-          // ).toFixed(2);
-          // changePercent =
-          //   changePercent < 0 ? changePercent : `+${changePercent}`;
-          // this.changePercent = `(${changePercent})`;
-          // this.series = [{ data: chart }];
         } catch (error) {
           // console.log(Object.keys(error), error.message);
         }
-
-        // console.log(this.connection);
-
-        // this.connection.send(
-        //   JSON.stringify({
-        //     type: "subscribe",
-        //     symbol: `${this.exchangeName}:${this.symbolName.displaySymbol}`,
-        //   })
-        // );
-
-        // this.connection.onmessage = function (event) {
-        //   // this.price = event.data.price;
-        //   console.log(event);
-        // };
       }
     },
     async timeSelection(val) {
-      // const formatAsPercentage = (x) => `${Math.round(x * 100)}%`;
-
       if (this.exchangeName && this.symbolName) {
         try {
           let response = await axios.get(
             `https://finnhub.io/api/v1/forex/candle?symbol=${this.symbolName.symbol}&resolution=${val}&from=1590988249&to=1591852249&token=sandbox_c8urg4aad3iaocnjlu50`
           );
 
-          let chart = response.data.c.map((item, index) => {
-            var a = new Date(response.data.t[index] * 1000);
-            var months = [
-              "Jan",
-              "Feb",
-              "Mar",
-              "Apr",
-              "May",
-              "Jun",
-              "Jul",
-              "Aug",
-              "Sep",
-              "Oct",
-              "Nov",
-              "Dec",
-            ];
-            var year = a.getFullYear();
-            var month = months[a.getMonth()];
-            var date = a.getDate();
-            var time = `${date}/${month}/${year}`;
-            return {
-              x: time,
-              y: [
-                Number(response.data.o[index].toFixed(2)),
-                Number(response.data.h[index].toFixed(2)),
-                Number(response.data.l[index].toFixed(2)),
-                Number(item.toFixed(2)),
-                Number(response.data.v[index].toFixed(2)),
-              ],
-            };
-          });
-          const lastItem = chart[chart.length - 1];
-          this.price = lastItem.y[3].toFixed(2);
-          let change = lastItem.y[3] - lastItem.y[0];
-          change = change.toFixed(2);
-          change = change < 0 ? change : `+${change}`;
-          this.change = change;
-          let changePercent = (
-            ((lastItem.y[3] - lastItem.y[0]) / lastItem.y[0]) *
-            100
-          ).toFixed(2);
-          changePercent =
-            changePercent < 0 ? changePercent : `+${changePercent}`;
-          this.changePercent = `(${changePercent})`;
-          this.series = [{ data: chart }];
+          this.transformArray(response);
         } catch (error) {
           console.log(Object.keys(error), error.message);
         }
@@ -330,15 +228,6 @@ export default {
     } catch (error) {
       console.log(Object.keys(error), error.message);
     }
-
-    // this.connection = new WebSocket(
-    //   "wss://ws.finnhub.io?token=c8urg4aad3iaocnjlu4g"
-    // );
-
-    // this.connection.onopen = function (event) {
-    //   console.log(event);
-    //   console.log("Successfully connected to the echo websocket server...");
-    // };
   },
 };
 </script>
