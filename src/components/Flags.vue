@@ -7,7 +7,7 @@
     <div class="currency-item ex1">
       <div :class="secondFlag"></div>
     </div>
-    <p class="exchange-name-theme">{{ exchangeName }}</p>
+    <p v-if="exchangeName" class="exchange-name-theme">{{ exchangeName }}</p>
   </div>
 </template>
 

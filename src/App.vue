@@ -28,18 +28,25 @@
             :secondFlag="secondFlag"
             :exchangeName="exchangeName"
           />
+
+          <!-- price -->
           <Price
             :symbolName="symbolName"
             :currencySymbol="currencySymbol"
             :price="price"
             :changePercent="changePercent"
             :change="change"
+            :caret="caret"
           />
+
+          <!-- chart -->
           <apexchart
             height="350"
             :options="chartOptions"
             :series="series"
           ></apexchart>
+
+          <!-- time selection -->
           <TimeFrame
             @setTimeFrame="setTimeFrame"
             :timeSelection="timeSelection"
@@ -76,8 +83,8 @@ export default {
       currencySymbol: "",
       price: "",
       timeSelection: "D",
-      connection: null,
-      change: "",
+      change: null,
+      caret: null,
       changePercent: "",
       chartOptions: {
         chart: {
@@ -161,6 +168,7 @@ export default {
       let change = lastItem.y[3] - lastItem.y[0];
       change = change.toFixed(2);
       change = change < 0 ? change : `+${change}`;
+      this.caret = change < 0 ? true : false;
       this.change = change;
       let changePercent = (
         ((lastItem.y[3] - lastItem.y[0]) / lastItem.y[0]) *
@@ -181,6 +189,7 @@ export default {
       this.change = "";
       this.changePercent = "";
       this.series = [];
+      this.caret = null;
       try {
         let response = await axios.get(
           `${process.env.VUE_APP_ENV_API}/forex/symbol?exchange=${val}&token=${process.env.VUE_APP_ENV_TOKEN}`

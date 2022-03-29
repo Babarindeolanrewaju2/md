@@ -58,7 +58,7 @@ export default {
   padding: 2px;
   padding-left: 10px;
   padding-right: 10px;
-  color: lightgray;
+  color: gray;
   font-size: 12px;
 }
 

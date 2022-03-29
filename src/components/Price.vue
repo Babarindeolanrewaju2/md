@@ -9,8 +9,15 @@
           'percentage',
         ]"
       >
-        <span>{{ change }}</span>
-        <span class="percentage">{{ changePercent }}</span>
+        <div v-if="caret !== null">
+          <div v-if="change < 0" class="d-inline-block">
+            <fa icon="caret-down" />
+          </div>
+          <div v-else class="d-inline-block"><fa icon="caret-up" /></div>
+          <span>{{ change }}</span>
+          <span class="percentage">{{ changePercent }}</span>
+        </div>
+        <div v-else></div>
       </div>
     </div>
   </div>
@@ -26,6 +33,7 @@ export default {
     price: String,
     changePercent: String,
     change: String,
+    caret: Boolean,
   },
 };
 </script>
