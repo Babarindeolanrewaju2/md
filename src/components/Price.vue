@@ -10,11 +10,11 @@
         ]"
       >
         <div v-if="caret !== null">
-          <div v-if="change < 0" class="d-inline-block">
+          <div v-if="change < 0" class="d-inline-block me-1">
             <fa icon="caret-down" />
           </div>
-          <div v-else class="d-inline-block"><fa icon="caret-up" /></div>
-          <span>{{ change }}</span>
+          <div v-else class="d-inline-block me-1"><fa icon="caret-up" /></div>
+          <span class="me-1">{{ change }}</span>
           <span class="percentage">{{ changePercent }}</span>
         </div>
         <div v-else></div>
