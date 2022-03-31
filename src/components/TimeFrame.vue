@@ -7,7 +7,7 @@
       :class="['click-time', timeSelection === '15' ? 'button-theme' : '']"
       @click="setTimeFrame('15')"
     >
-      15m
+      15M
     </div>
     <div
       :class="['click-time', timeSelection === '60' ? 'button-theme' : '']"
@@ -66,5 +66,6 @@ export default {
   background-color: lightblue;
   border-radius: 5px;
   color: black;
+  font-weight: 700;
 }
 </style>

@@ -2,6 +2,7 @@
 <template>
   <div id="app">
     <div class="container">
+      <Header />
       <div class="row px-2 py-5 align-items-center">
         <div class="col-lg-3 col-md-3 col-12">
           <!-- Exchange select -->
@@ -67,6 +68,7 @@ import Symbols from "./components/SymbolsOptions.vue";
 import TimeFrame from "./components/TimeFrame.vue";
 import Flags from "./components/Flags.vue";
 import Price from "./components/Price.vue";
+import Header from "./components/Header.vue";
 
 export default {
   name: "App",
@@ -82,7 +84,7 @@ export default {
       secondFlag: "",
       currencySymbol: "",
       price: "",
-      timeSelection: "D",
+      timeSelection: "60",
       change: null,
       caret: null,
       changePercent: "",
@@ -110,6 +112,7 @@ export default {
     TimeFrame,
     Flags,
     Price,
+    Header,
     apexchart: VueApexCharts,
   },
   methods: {

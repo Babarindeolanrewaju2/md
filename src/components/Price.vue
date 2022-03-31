@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-row justify-content-between mb-2">
-    <p>{{ symbolName }}</p>
+    <p class="symbol-bold">{{ symbolName }}</p>
     <div class="text-end">
       <p>{{ currencySymbol }}{{ price }}</p>
       <div
@@ -54,5 +54,9 @@ p {
 
 .percentage {
   font-size: 10px;
+}
+
+.symbol-bold {
+  font-weight: 900;
 }
 </style>
