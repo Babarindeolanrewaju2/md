@@ -4,7 +4,7 @@
     <div class="container">
       <Header />
       <div class="row px-2 py-5 align-items-center">
-        <div class="col-lg-3 col-md-3 col-12">
+        <div class="col-lg-3 col-md-3 col-12 mb-4">
           <!-- Exchange select -->
           <div class="d-block py-2">
             <Exchanges
